@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Müşteri Kayıt Defteri</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        input, button {
+            margin-bottom: 10px;
+            padding: 8px;
+            font-size: 14px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Müşteri Kayıt Defteri</h1>
+
+    <!-- Arama Kutusu -->
+    <input type="text" id="search" placeholder="Ad veya Telefon numarası ile arama yapın..." onkeyup="searchCustomer()">
+    
+    <!-- Form -->
+    <form id="customerForm">
+        <input type="text" id="name" placeholder="Ad" required>
+        <input type="text" id="surname" placeholder="Soyad" required>
+        <input type="text" id="phone" placeholder="Telefon Numarası" required>
+        <input type="text" id="address" placeholder="Adres" required>
+        <button type="submit">Müşteri Ekle</button>
+    </form>
+
+    <!-- Müşteri Listesi -->
+    <table id="customerTable">
+        <thead>
+            <tr>
+                <th>Ad</th>
+                <th>Soyad</th>
+                <th>Telefon</th>
+                <th>Adres</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Müşteri verileri burada görünecek -->
+        </tbody>
+    </table>
+
+    <script>
+        // Sayfa yüklendiğinde, yerel depolamadan müşteri verilerini al
+        let customers = JSON.parse(localStorage.getItem('customers')) || [];
+
+        // Sayfa yüklendiğinde müşteri verilerini göster
+        window.onload = displayCustomers;
+
+        // Müşteri eklemek
+        document.getElementById('customerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const name = document.getElementById('name').value;
+            const surname = document.getElementById('surname').value;
+            const phone = document.getElementById('phone').value;
+            const address = document.getElementById('address').value;
+
+            const customer = {
+                name: name,
+                surname: surname,
+                phone: phone,
+                address: address
+            };
+
+            // Müşteri kaydını diziye ekle
+            customers.push(customer);
+
+            // Yerel depolamaya kaydet
+            localStorage.setItem('customers', JSON.stringify(customers));
+
+            // Formu sıfırla
+            document.getElementById('customerForm').reset();
+
+            // Müşteri verilerini güncelle
+            displayCustomers();
+        });
+
+        // Müşteri verilerini tabloya yazdırma
+        function displayCustomers() {
+            const tableBody = document.getElementById('customerTable').getElementsByTagName('tbody')[0];
+            tableBody.innerHTML = '';
+
+            customers.forEach((customer) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${customer.name}</td>
+                    <td>${customer.surname}</td>
+                    <td>${customer.phone}</td>
+                    <td>${customer.address}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Arama fonksiyonu
+        function searchCustomer() {
+            const searchQuery = document.getElementById('search').value.toLowerCase(); // Arama sorgusunu küçük harfe dönüştür
+            const filteredCustomers = customers.filter((customer) => {
+                return customer.name.toLowerCase().includes(searchQuery) || customer.phone.includes(searchQuery); // Veriyi de küçük harfe dönüştür
+            });
+
+            const tableBody = document.getElementById('customerTable').getElementsByTagName('tbody')[0];
+            tableBody.innerHTML = '';
+
+            filteredCustomers.forEach((customer) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${customer.name}</td>
+                    <td>${customer.surname}</td>
+                    <td>${customer.phone}</td>
+                    <td>${customer.address}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+    </script>
+
+</body>
+</html>
